@@ -14,18 +14,24 @@ import com.omaresli.gallery.BR
 import com.omaresli.gallery.R
 import com.omaresli.gallery.adapters.CatalogAdapter
 import com.omaresli.gallery.databinding.ActivityMainBinding
+import com.omaresli.gallery.interactors.CatalogInteractor
+import com.omaresli.gallery.repositories.CatalogRepository
+import com.omaresli.gallery.repositories.CatalogRepositoryImplementation
+import com.omaresli.gallery.routers.AndroidCatalogRouter
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    lateinit var interactor: CatalogInteractor
+    val repository: CatalogRepository = CatalogRepositoryImplementation()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         val catalogAdapter = CatalogAdapter(BR.viewModel)
+        interactor = CatalogInteractor(repository, AndroidCatalogRouter(catalogAdapter, this))
         setupRecyclerView(catalogAdapter)
-
 
         handleIntent(intent)
     }
@@ -57,12 +63,12 @@ class MainActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent) {
         if (Intent.ACTION_SEARCH == intent.action) {
             val query = intent.getStringExtra(SearchManager.QUERY)
-            // TODO START QUERY
+            TODO()
         }
     }
 
     private fun onLoadMore() {
-        // TODO LOAD MORE ITEMS
+        interactor.onLoadNextPage(this)
     }
 
     class EndlessListener(private val layoutManager: GridLayoutManager, private val loadMore: () -> Unit) : RecyclerView.OnScrollListener() {
