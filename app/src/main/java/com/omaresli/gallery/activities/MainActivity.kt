@@ -14,26 +14,28 @@ import com.omaresli.gallery.BR
 import com.omaresli.gallery.R
 import com.omaresli.gallery.adapters.CatalogAdapter
 import com.omaresli.gallery.databinding.ActivityMainBinding
-import com.omaresli.gallery.interactors.CatalogInteractor
-import com.omaresli.gallery.repositories.CatalogRepository
-import com.omaresli.gallery.repositories.CatalogRepositoryImplementation
-import com.omaresli.gallery.routers.AndroidCatalogRouter
+import com.omaresli.gallery.interactors.CatalogViewModel
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var interactor: CatalogInteractor
-    val repository: CatalogRepository = CatalogRepositoryImplementation()
+    lateinit var viewModel: CatalogViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         val catalogAdapter = CatalogAdapter(BR.viewModel)
-        interactor = CatalogInteractor(repository, AndroidCatalogRouter(catalogAdapter, this))
+        viewModel = CatalogViewModel(catalogAdapter, this, this)
         setupRecyclerView(catalogAdapter)
 
         handleIntent(intent)
+    }
+
+    override fun onDestroy() {
+        // Make sure we don't leak
+        viewModel = null;
+        super.onDestroy()
     }
 
     private fun setupRecyclerView(catalogAdapter: CatalogAdapter) {
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onLoadMore() {
-        interactor.onLoadNextPage(this)
+        viewModel.onLoadNextPage()
     }
 
     class EndlessListener(private val layoutManager: GridLayoutManager, private val loadMore: () -> Unit) : RecyclerView.OnScrollListener() {
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity() {
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                     if (totalItemCount <= (lastVisibleItem + MAX_ITEMS_BEFORE_SCROLL)) {
                         scrolling = false
+                        CatalogViewModel.track("OnLoadingPage")
                         loadMore.invoke()
                     }
                 }
