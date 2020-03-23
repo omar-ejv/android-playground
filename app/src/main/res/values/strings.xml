@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Gallery</string>
+    <string name="app_label">Catalog</string>
+    <string name="search_catalog_hint">Looking for kittens?</string>
+    <string name="search_catalog_menu_title">Search</string>
+    <string name="empty_row_title">Search for pictures in our catalog!</string>
+    <string name="error_general">Something went wrong...</string>
+</resources>
