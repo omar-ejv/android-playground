@@ -41,6 +41,7 @@ class CatalogViewModel(
 
         return try {
             client.newCall(request).execute().use { response ->
+                track("SuccessResponseReceived")
                 data.value = Result.Success(response.body()!!.string())
                 data as LiveData<Result>
             }
